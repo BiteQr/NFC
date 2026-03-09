@@ -31,10 +31,9 @@
             padding: 20px 15px; display: none; flex-direction: column; align-items: center; 
         }
 
-        /* ОСНОВНОЙ БОКС (Карточка) */
         .main-card {
             width: 100%;
-            background: rgba(255, 255, 255, 0.15); /* Эффект стекла */
+            background: rgba(255, 255, 255, 0.15); 
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
             border-radius: 30px;
@@ -65,7 +64,6 @@
         }
         .btn:active { transform: scale(0.97); }
 
-        /* МЕССЕНДЖЕРЫ С ВЫЛЕТОМ */
         .social-grid { display: flex; gap: 12px; width: 100%; margin: 35px 0 10px; }
         .social-btn { 
             flex: 1; border-radius: 18px; padding: 30px 5px 12px;
@@ -134,7 +132,6 @@
     </div>
 
     <script>
-        // ЗАМЕНИ НА СВОЮ ССЫЛКУ ИЗ GOOGLE SCRIPT
         const API_URL = "https://script.google.com/macros/s/AKfycbxSpvdvDwLswLzEihnxNAaE6lY_PpyjNETdSl1cgtC8Hs-orqbYDWsGUXAwGs_1qKu2/exec";
 
         window.onload = async () => {
@@ -149,15 +146,14 @@
                 if(data.bg_image_url) document.body.style.backgroundImage = `url('${data.bg_image_url}')`;
                 else if(data.bg_color) document.body.style.backgroundColor = data.bg_color;
 
-                // 2. Цвета из таблицы
+                // 2. Цвета
                 const btnColor = data.btn_color || '#333';
-                const textColor = data.text_color || '#fff'; // Прямое управление цветом текста
+                const textColor = data.text_color || '#fff';
 
                 document.getElementById('ui-photo').src = data.photo_url || '';
                 document.getElementById('ui-name').innerText = data.name || '';
-                document.getElementById('ui-name').style.color = textColor; // Имя тоже красим
+                document.getElementById('ui-name').style.color = textColor;
                 
-                // Красим все кнопки и мессенджеры
                 const btns = [
                     document.getElementById('btn-save'), 
                     document.getElementById('ui-wa'), 
@@ -169,7 +165,18 @@
                     b.style.color = textColor; 
                 });
 
-                document.getElementById('ui-wa').href = `https://wa.me/${data.whatsapp}`;
+                // --- ЛОГИКА НОМЕРА ТЕЛЕФОНА ---
+                let rawPhone = String(data.phone || "").replace(/\D/g, ""); // Только цифры
+                let callPhone = rawPhone; // Для звонков и VCF
+                
+                // Если номер на 7, добавляем +
+                if (rawPhone.startsWith("7") && rawPhone.length === 11) {
+                    callPhone = "+" + rawPhone;
+                } else if (rawPhone.startsWith("8") && rawPhone.length === 11) {
+                    callPhone = "+7" + rawPhone.substring(1);
+                }
+
+                document.getElementById('ui-wa').href = `https://wa.me/${rawPhone}`;
                 document.getElementById('ui-tg').href = `https://t.me/${data.telegram}`;
 
                 // Доп кнопки
@@ -193,10 +200,18 @@
                     document.getElementById('qr-image').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(window.location.href)}`;
                     document.getElementById('qrModal').style.display = 'flex';
                 };
+
+                // --- КОРРЕКТНОЕ СОХРАНЕНИЕ ---
                 document.getElementById('btn-save').onclick = () => {
-                    const vcf = `BEGIN:VCARD\nVERSION:3.0\nFN:${data.name}\nTEL:${data.phone}\nEND:VCARD`;
+                    const vcf = [
+                        'BEGIN:VCARD',
+                        'VERSION:3.0',
+                        `FN:${data.name || 'Contact'}`,
+                        `TEL;TYPE=CELL:${callPhone}`, // Используем номер с плюсом
+                        'END:VCARD'
+                    ].join('\n');
                     const blob = new Blob([vcf], {type:'text/vcard'});
-                    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download=`${data.name}.vcf`; a.click();
+                    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download=`${data.name || 'contact'}.vcf`; a.click();
                 };
 
             } catch (e) { console.error(e); }
