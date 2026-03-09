@@ -7,141 +7,130 @@
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/552/552791.png">
 
     <style>
-        :root { 
-            --wa-color: #25D366; 
-            --tg-color: #0088cc; 
-            --btn-gray: #d9d9d9; 
-        }
-        
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body { 
             margin: 0; padding: 0; 
-            font-family: -apple-system, Helvetica, Arial, sans-serif; 
-            display: flex; justify-content: center; 
-            min-height: 100vh; overflow-x: hidden;
-            background-color: #fff;
+            /* Фирменный шрифт Apple */
+            font-family: -apple-system, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif; 
+            background-color: #ffffff; 
+            display: flex; justify-content: center; min-height: 100vh;
+            color: #000;
+            -webkit-font-smoothing: antialiased;
         }
-        
+
         .container { 
-            width: 100%; max-width: 400px; 
-            padding: 20px; display: flex; 
-            flex-direction: column; align-items: center; 
-            opacity: 0; transition: opacity 0.5s ease;
+            width: 100%; max-width: 400px; padding: 50px 30px; 
+            display: flex; flex-direction: column; align-items: center; 
+            opacity: 0; transition: opacity 0.8s ease;
         }
         
-        /* Фото профиля - адаптация под высоту экрана */
         .profile-pic { 
-            width: 25vh; height: 25vh; 
-            max-width: 160px; max-height: 160px; 
-            min-width: 120px; min-height: 120px;
-            border-radius: 50%; overflow: hidden; 
-            margin: 10px 0 20px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
-            background-color: #eee;
-            transform: scale(0.8); transition: 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 140px; height: 140px; 
+            background-color: #f2f2f7; border-radius: 50%; 
+            margin-bottom: 25px; overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
         }
         .profile-pic img { width: 100%; height: 100%; object-fit: cover; }
 
         .name { 
-            font-size: 28px; font-weight: 500; 
-            margin-bottom: 25px; text-align: center; color: #000;
+            font-size: 32px; font-weight: 700; letter-spacing: -0.5px;
+            margin-bottom: 40px; text-align: center;
         }
 
-        /* Кнопки как на макете */
+        /* Универсальный стиль кнопки */
         .btn { 
-            display: flex; align-items: center; justify-content: center; 
             width: 100%; padding: 18px; margin-bottom: 12px; 
-            border-radius: 25px; font-size: 18px; 
-            font-weight: 400; text-decoration: none; color: #000; border: none; 
-            background-color: var(--btn-gray);
-            opacity: 0; transform: translateY(20px); transition: 0.4s ease;
+            border-radius: 16px; background-color: #eee; 
+            text-decoration: none; font-size: 17px; font-weight: 600;
+            text-align: center; border: none; display: block;
+            opacity: 0; transform: translateY(15px); transition: 0.5s ease;
         }
 
         /* Сетка соцсетей */
         .social-grid { 
-            display: flex; gap: 15px; width: 100%; 
-            margin: 45px 0 25px; opacity: 0; 
-            transform: translateY(20px); transition: 0.4s ease; 
+            display: flex; gap: 12px; width: 100%; margin: 30px 0 10px;
+            opacity: 0; transform: translateY(15px); transition: 0.5s ease;
         }
-        
         .social-btn { 
-            flex: 1; background-color: var(--btn-gray); 
-            border-radius: 25px; padding: 35px 5px 15px; 
-            position: relative; text-decoration: none; 
-            color: #000; font-weight: 400; font-size: 16px; text-align: center;
-            line-height: 1.2;
+            flex: 1; border-radius: 20px; padding: 20px 10px;
+            text-decoration: none; font-size: 14px; font-weight: 600; text-align: center;
+            display: flex; flex-direction: column; align-items: center; gap: 8px;
         }
+        .social-btn svg { width: 28px; height: 28px; fill: currentColor; }
 
-        /* Выпирающие круглые иконки */
-        .icon-circle { 
-            width: 60px; height: 60px; border-radius: 50%; 
-            position: absolute; top: -30px; left: 50%; 
-            transform: translateX(-50%); display: flex; 
-            justify-content: center; align-items: center; 
-            color: #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.1); 
-        }
-        .wa-icon { background-color: #ff0000; } /* Как на твоем макете - красный */
-        .tg-icon { background-color: #ff0000; } /* Как на твоем макете - красный */
-        
-        svg { width: 30px; height: 30px; fill: currentColor; }
-
-        #loader { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #888; }
-
-        .show { opacity: 1 !important; transform: translateY(0) scale(1) !important; }
+        #loader { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #888; font-size: 14px; }
+        .show { opacity: 1 !important; transform: translateY(0) !important; }
     </style>
 </head>
 <body>
     <div id="loader">Загрузка...</div>
     <div id="app" class="container">
-        <div id="pic-wrap" class="profile-pic"><img id="ui-photo" src="" alt=""></div>
+        <div class="profile-pic"><img id="ui-photo" src="" alt=""></div>
         <div id="ui-name" class="name"></div>
-        <button id="btn-save" class="btn">Сохранить Контакты</button>
         
+        <a id="btn-save" href="#" class="btn">Сохранить контакт</a>
+
         <div id="ui-grid" class="social-grid">
             <a id="ui-wa" href="#" class="social-btn">
-                <div class="icon-circle wa-icon"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg></div>
-                Написать<br>WhatsApp
+                <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+                WhatsApp
             </a>
             <a id="ui-tg" href="#" class="social-btn">
-                <div class="icon-circle tg-icon"><svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg></div>
-                Написать<br>Telegram
+                <svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                Telegram
             </a>
         </div>
-        <div id="extra-btns" style="width:100%"></div>
+
+        <div id="extra-btns" style="width: 100%;"></div>
     </div>
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzIWrE8sAeWpAewykSznd5cpecqdhX6mMPDUuR9YdxFiHBzvcy49dG1SE7aJMQ788j5/exec";
 
+        // Функция выбора цвета текста (белый или черный) в зависимости от яркости фона
+        function getContrastColor(hex) {
+            if (!hex || hex.indexOf('#') !== 0) return '#000000';
+            const r = parseInt(hex.substr(1, 2), 16);
+            const g = parseInt(hex.substr(3, 2), 16);
+            const b = parseInt(hex.substr(5, 2), 16);
+            const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+            return brightness > 155 ? '#000000' : '#ffffff';
+        }
+
         async function init() {
-            const id = new URLSearchParams(window.location.search).get('id');
-            if (!id) { document.getElementById('loader').innerText = "ID не указан"; return; }
+            const id = new URLSearchParams(window.location.search).get('id') || "1";
             try {
                 const res = await fetch(`${SCRIPT_URL}?id=${id}`);
                 const data = await res.json();
-                if (data.error) { document.getElementById('loader').innerText = "Не найдено"; return; }
                 render(data);
-            } catch (e) { document.getElementById('loader').innerText = "Ошибка загрузки"; }
+            } catch (e) { document.getElementById('loader').innerText = "Ошибка данных"; }
+        }
+
+        function applyStyle(el, bgColor) {
+            el.style.backgroundColor = bgColor;
+            el.style.color = getContrastColor(bgColor);
         }
 
         function render(data) {
             document.getElementById('loader').style.display = 'none';
-            const app = document.getElementById('app');
-            app.style.opacity = '1';
-
-            document.getElementById('ui-photo').src = data.photo_url || 'https://via.placeholder.com/150';
-            document.getElementById('ui-name').innerText = data.name || 'Без имени';
+            document.getElementById('app').style.opacity = '1';
             
-            if(data.bg_color) document.body.style.backgroundColor = data.bg_color;
+            document.getElementById('ui-photo').src = data.photo_url || '';
+            document.getElementById('ui-name').innerText = data.name || 'Имя Клиента';
+            
+            const mainColor = data.btn_color || '#f2f2f7';
+            
+            // Стилизуем главную кнопку
+            applyStyle(document.getElementById('btn-save'), mainColor);
+            
+            // Стилизуем соцсети
+            applyStyle(document.getElementById('ui-wa'), mainColor);
+            applyStyle(document.getElementById('ui-tg'), mainColor);
 
-            document.getElementById('ui-wa').href = `https://wa.me/${data.whatsapp}`;
-            document.getElementById('ui-tg').href = `https://t.me/${data.telegram}`;
-
-            const extraContainer = document.getElementById('extra-btns');
+            const container = document.getElementById('extra-btns');
             let btns = [];
             for(let i=1; i<=5; i++) {
                 if(data[`extra_btn_text_${i}`]) {
@@ -149,18 +138,19 @@
                     a.className = 'btn';
                     a.href = data[`extra_btn_link_${i}`];
                     a.innerText = data[`extra_btn_text_${i}`];
-                    extraContainer.appendChild(a);
+                    applyStyle(a, mainColor);
+                    container.appendChild(a);
                     btns.push(a);
                 }
             }
 
-            // Плавное появление элементов
-            setTimeout(() => document.getElementById('pic-wrap').classList.add('show'), 100);
-            setTimeout(() => document.getElementById('btn-save').classList.add('show'), 300);
-            setTimeout(() => document.getElementById('ui-grid').classList.add('show'), 500);
-            btns.forEach((b, i) => setTimeout(() => b.classList.add('show'), 700 + (i * 150)));
+            // Плавный вход
+            setTimeout(() => document.getElementById('btn-save').classList.add('show'), 200);
+            setTimeout(() => document.getElementById('ui-grid').classList.add('show'), 400);
+            btns.forEach((b, i) => setTimeout(() => b.classList.add('show'), 600 + (i * 100)));
 
-            document.getElementById('btn-save').onclick = () => {
+            document.getElementById('btn-save').onclick = (e) => {
+                e.preventDefault();
                 const vcf = `BEGIN:VCARD\nVERSION:3.0\nFN:${data.name}\nTEL:${data.phone}\nEND:VCARD`;
                 const blob = new Blob([vcf], {type: 'text/vcard'});
                 const url = URL.createObjectURL(blob);
