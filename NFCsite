@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFC Визитка</title>
+    <style>
+        /* Базовые настройки и цвета */
+        :root {
+            --btn-default: #e0e0e0;
+            --bg-default: #ffffff;
+            --text-color: #111111;
+            --wa-color: #25D366;
+            --tg-color: #0088cc;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0; padding: 0;
+            background-color: var(--bg-default);
+            display: flex; flex-direction: column; align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%; max-width: 400px;
+            padding: 30px 20px; box-sizing: border-box;
+            text-align: center; display: none; /* Скрыто до загрузки */
+        }
+
+        /* Лоадер загрузки */
+        .loader {
+            border: 4px solid #f3f3f3; border-top: 4px solid #333;
+            border-radius: 50%; width: 40px; height: 40px;
+            animation: spin 1s linear infinite; margin-top: 40vh;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* ФИШКА 1: Умная маска для фото (Идеальный круг с тенью) */
+        .profile-pic {
+            width: 160px; height: 160px;
+            margin: 0 auto 20px; border-radius: 50%;
+            overflow: hidden; background-color: #f0f0f0;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            border: 3px solid white;
+        }
+        .profile-pic img {
+            width: 100%; height: 100%; object-fit: cover;
+        }
+
+        .name { font-size: 28px; font-weight: 600; color: var(--text-color); margin-bottom: 25px; }
+
+        /* Общий стиль кнопок */
+        .btn {
+            display: block; width: 100%; padding: 16px;
+            border-radius: 20px; font-size: 16px; font-weight: 500;
+            text-decoration: none; color: var(--text-color);
+            background-color: var(--btn-color, var(--btn-default));
+            border: none; cursor: pointer; margin-bottom: 15px;
+            transition: transform 0.1s; box-sizing: border-box;
+        }
+        .btn:active { transform: scale(0.97); }
+
+        /* Сетка для WhatsApp и Telegram */
+        .social-grid {
+            display: flex; gap: 15px; margin-top: 40px; margin-bottom: 20px;
+        }
+        .social-btn {
+            flex: 1; background-color: var(--btn-default);
+            border-radius: 20px; padding: 35px 10px 15px; /* Место сверху для лого */
+            position: relative; text-decoration: none;
+            color: var(--text-color); font-weight: 500; font-size: 15px;
+        }
+        
+        /* Выпирающие круги мессенджеров (Как в макете) */
+        .icon-circle {
+            width: 60px; height: 60px; border-radius: 50%;
+            position: absolute; top: -30px; left: 50%;
+            transform: translateX(-50%);
+            display: flex; justify-content: center; align-items: center;
+            color: white; font-size: 30px; box-shadow: 0 5px 10px rgba(0,0,0,0.15);
+        }
+        .wa-icon { background-color: var(--wa-color); }
+        .tg-icon { background-color: var(--tg-color); }
+
+        /* ФИШКА 3: Модальное окно для QR кода */
+        .qr-modal {
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%; background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px); justify-content: center; align-items: center; z-index: 100;
+        }
+        .qr-content {
+            background: white; padding: 30px; border-radius: 25px; text-align: center; width: 80%; max-width: 300px;
+        }
+        .qr-content img { width: 100%; border-radius: 10px; margin-bottom: 20px; }
+        .qr-close { background: #333; color: white; }
+
+        /* Иконки SVG */
+        svg { width: 32px; height: 32px; fill: currentColor; }
+    </style>
+</head>
+<body>
+
+    <div id="loader" class="loader"></div>
+
+    <div id="app" class="container">
+        <div class="profile-pic">
+            <img id="ui-photo" src="" alt="Фото">
+        </div>
+        
+        <div id="ui-name" class="name">Загрузка...</div>
+
+        <button id="btn-save" class="btn">Сохранить Контакты</button>
+
+        <div class="social-grid">
+            <a id="ui-wa" href="#" class="social-btn">
+                <div class="icon-circle wa-icon">
+                    <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+                </div>
+                Написать<br>WhatsApp
+            </a>
+            <a id="ui-tg" href="#" class="social-btn">
+                <div class="icon-circle tg-icon">
+                    <svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                </div>
+                Написать<br>Telegram
+            </a>
+        </div>
+
+        <a id="ui-extra" href="#" class="btn" style="display: none;"></a>
+
+        <button id="btn-qr" class="btn" style="background-color: transparent; border: 2px solid var(--btn-default); margin-top: 30px;">Поделиться QR-кодом</button>
+    </div>
+
+    <div id="qrModal" class="qr-modal">
+        <div class="qr-content">
+            <h3 style="margin-top: 0;">Отсканируй меня</h3>
+            <img id="qr-image" src="" alt="QR Code">
+            <button class="btn qr-close" onclick="document.getElementById('qrModal').style.display='none'">Закрыть</button>
+        </div>
+    </div>
+
+    <script>
+        // ВСТАВЬ СЮДА СВОЮ ССЫЛКУ ИЗ GOOGLE SCRIPT!
+        const API_URL = "https://script.google.com/macros/s/AKfycbxpvpsBdbpoOamOTT20yEI4AJaSGegPaeA5s5xwidyXnZSfRVciNuBMz6kpXTNRsJF_/exec";
+        
+        let userData = null;
+
+        async function initCard() {
+            // Получаем ID из адресной строки (например ?id=001)
+            const urlParams = new URLSearchParams(window.location.search);
+            const userId = urlParams.get('id');
+
+            if (!userId) {
+                document.getElementById('ui-name').innerText = "Ошибка: ID не указан!";
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('app').style.display = 'block';
+                return;
+            }
+
+            try {
+                // Запрашиваем данные из Google Sheets
+                const response = await fetch(`${API_URL}?id=${userId}`);
+                userData = await response.json();
+
+                if (userData.error) {
+                    document.getElementById('ui-name').innerText = userData.error;
+                } else {
+                    renderData(userData);
+                }
+            } catch (err) {
+                document.getElementById('ui-name').innerText = "Ошибка загрузки данных.";
+            }
+
+            // Прячем лоадер, показываем карточку
+            document.getElementById('loader').style.display = 'none';
+            document.getElementById('app').style.display = 'block';
+        }
+
+        function renderData(data) {
+            // Фото и имя
+            document.getElementById('ui-photo').src = data.photo_url || 'https://via.placeholder.com/150';
+            document.getElementById('ui-name').innerText = data.name;
+
+            // Цвета
+            if(data.bg_color) document.body.style.backgroundColor = data.bg_color;
+            if(data.btn_color) {
+                document.documentElement.style.setProperty('--btn-color', data.btn_color);
+            }
+
+            // Ссылки на мессенджеры
+            if(data.whatsapp) {
+                document.getElementById('ui-wa').href = `https://wa.me/${data.whatsapp}`;
+            } else {
+                document.getElementById('ui-wa').style.display = 'none';
+            }
+            
+            if(data.telegram) {
+                document.getElementById('ui-tg').href = `https://t.me/${data.telegram}`;
+            } else {
+                document.getElementById('ui-tg').style.display = 'none';
+            }
+
+            // Экстра кнопка
+            if(data.extra_btn_text && data.extra_btn_link) {
+                const extraBtn = document.getElementById('ui-extra');
+                extraBtn.innerText = data.extra_btn_text;
+                extraBtn.href = data.extra_btn_link;
+                extraBtn.style.display = 'block';
+            }
+
+            // Настройка QR кода
+            document.getElementById('btn-qr').onclick = () => {
+                const currentUrl = window.location.href;
+                // Используем бесплатный API для генерации QR кода
+                document.getElementById('qr-image').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(currentUrl)}`;
+                document.getElementById('qrModal').style.display = 'flex';
+            };
+
+            // Генерация Контакта (vCard)
+            document.getElementById('btn-save').onclick = () => {
+                const vcard = `BEGIN:VCARD
+VERSION:3.0
+N:${data.name};;;;
+FN:${data.name}
+TEL;TYPE=CELL:${data.phone || data.whatsapp}
+URL:${window.location.href}
+END:VCARD`;
+                const blob = new Blob([vcard], { type: "text/vcard" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `${data.name}.vcf`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            };
+        }
+
+        // Запускаем при загрузке страницы
+        window.onload = initCard;
+    </script>
+</body>
+</html>
