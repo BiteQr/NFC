@@ -17,7 +17,6 @@
             min-height: 100vh;
         }
 
-        /* Бейдж посещаемости */
         .views-badge {
             position: absolute; top: 20px; right: 20px;
             background: rgba(0, 0, 0, 0.4);
@@ -85,6 +84,7 @@
             flex: 1; border-radius: 20px; padding: 32px 5px 15px;
             text-decoration: none; font-size: 13px; font-weight: 700; text-align: center;
             position: relative; line-height: 1.2; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            display: none; /* Скрыто до проверки наличия данных */
         }
         .icon-circle { 
             width: 50px; height: 50px; border-radius: 50%; 
@@ -96,7 +96,6 @@
 
         #btn-qr { background: rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.2); margin-top: 10px; }
 
-        /* Кнопка "Создать свой профиль" */
         .footer-cta {
             margin-top: 30px; width: 100%; max-width: 280px;
             background: rgba(255, 255, 255, 0.4);
@@ -164,13 +163,12 @@
 
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbzfNVqGkW7ChqFbQwDwjedT-0ewR5_NwXeKqp0tPe3UcYdPPg6oBgD5miLLWCpXybo/exec";
-        const ADMIN_WA = "77064150958"; // Твой номер
+        const ADMIN_WA = "77064150958";
 
         window.onload = async () => {
             const userId = new URLSearchParams(window.location.search).get('id');
             if (!userId) return;
 
-            // Настройка ссылки для создания
             document.getElementById('ui-create').href = `https://wa.me/${ADMIN_WA}?text=${encodeURIComponent("Привет! Хочу заказать себе такую же цифровую визитку.")}`;
 
             try {
@@ -188,12 +186,35 @@
                 document.getElementById('ui-name').style.color = textColor;
                 document.getElementById('ui-views').innerText = data.views || '0';
 
-                const btns = [document.getElementById('btn-save'), document.getElementById('ui-wa'), document.getElementById('ui-tg'), document.getElementById('btn-qr')];
-                btns.forEach(b => { b.style.backgroundColor = btnColor; b.style.color = textColor; });
-
+                // Настройка WhatsApp
+                const uiWa = document.getElementById('ui-wa');
                 let rawPhone = String(data.phone || "").replace(/\D/g, "");
-                document.getElementById('ui-wa').href = `https://wa.me/${rawPhone}`;
-                document.getElementById('ui-tg').href = `https://t.me/${data.telegram}`;
+                if (rawPhone && rawPhone.length > 5) {
+                    uiWa.href = `https://wa.me/${rawPhone}`;
+                    uiWa.style.display = 'block';
+                    uiWa.style.backgroundColor = btnColor;
+                    uiWa.style.color = textColor;
+                }
+
+                // Настройка Telegram
+                const uiTg = document.getElementById('ui-tg');
+                if (data.telegram && data.telegram.trim().length > 0) {
+                    uiTg.href = `https://t.me/${data.telegram.replace('@', '')}`;
+                    uiTg.style.display = 'block';
+                    uiTg.style.backgroundColor = btnColor;
+                    uiTg.style.color = textColor;
+                }
+
+                // Если есть только ОДНА кнопка из двух, убираем flex: 1, чтобы она заняла всю ширину
+                if (uiWa.style.display === 'block' && uiTg.style.display !== 'block') {
+                    uiWa.style.flex = "0 0 100%";
+                } else if (uiTg.style.display === 'block' && uiWa.style.display !== 'block') {
+                    uiTg.style.flex = "0 0 100%";
+                }
+
+                // Кнопки Save и QR
+                const mainBtns = [document.getElementById('btn-save'), document.getElementById('btn-qr')];
+                mainBtns.forEach(b => { b.style.backgroundColor = btnColor; b.style.color = textColor; });
 
                 const container = document.getElementById('extra-btns');
                 for(let i=1; i<=5; i++) {
