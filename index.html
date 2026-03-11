@@ -3,246 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Digital Business Card</title>
+    <title>Success Premium Card</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        :root { --wa-color: #25D366; --tg-color: #0088cc; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        
         body { 
-            margin: 0; padding: 0; 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-            background-color: #f0f0f2; 
-            background-size: cover; background-position: center; background-attachment: fixed;
-            display: flex; justify-content: center; align-items: flex-start;
-            min-height: 100vh;
+            margin: 0; padding: 0; font-family: -apple-system, system-ui, sans-serif;
+            background: #0f0f0f; display: flex; justify-content: center; min-height: 100vh; color: white;
         }
 
-        .views-badge {
-            position: absolute; top: 20px; right: 20px;
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-            padding: 8px 12px; border-radius: 20px;
-            display: flex; align-items: center; gap: 8px;
-            font-size: 11px; font-weight: 600; color: #fff;
-            border: 1px solid rgba(255,255,255,0.2);
-            z-index: 10;
-        }
+        .container { width: 100%; max-width: 400px; padding: 80px 20px 40px; display: none; flex-direction: column; }
 
-        .online-dot {
-            width: 7px; height: 7px; background-color: #34C759;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.7); }
-            70% { box-shadow: 0 0 0 6px rgba(52, 199, 89, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(52, 199, 89, 0); }
-        }
-
-        .loader {
-            border: 3px solid rgba(0,0,0,0.1); border-top: 3px solid #333;
-            border-radius: 50%; width: 30px; height: 30px;
-            animation: spin 1s linear infinite; margin-top: 45vh;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        .container { 
-            width: 100%; max-width: 375px; 
-            padding: 60px 15px 30px; display: none; flex-direction: column; align-items: center; 
-        }
-
+        /* Glassmorphism Effect */
         .main-card {
-            width: 100%;
-            background: rgba(255, 255, 255, 0.15); 
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border-radius: 35px; padding: 35px 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-            border: 1px solid rgba(255,255,255,0.25);
-            display: flex; flex-direction: column; align-items: center; text-align: center;
+            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            border-radius: 40px; padding: 40px 20px; border: 1px solid rgba(255,255,255,0.1);
+            text-align: center; box-shadow: 0 40px 80px rgba(0,0,0,0.5);
         }
 
         .profile-pic { 
-            width: 120px; height: 120px; border-radius: 50%; 
-            margin-bottom: 20px; overflow: hidden;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2); border: 3px solid #fff;
+            width: 120px; height: 120px; border-radius: 50%; margin: -100px auto 20px;
+            border: 4px solid rgba(255,255,255,0.2); overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.4);
         }
         .profile-pic img { width: 100%; height: 100%; object-fit: cover; }
 
-        .name { font-size: 24px; font-weight: 800; margin-bottom: 30px; }
+        .name { font-size: 24px; font-weight: 800; margin-bottom: 30px; letter-spacing: -0.5px; }
 
+        /* Button styles */
         .btn { 
-            width: 100%; padding: 16px; margin-bottom: 12px; 
-            border-radius: 18px; text-decoration: none; font-size: 16px; font-weight: 700;
-            text-align: center; border: none; display: block; cursor: pointer;
-            transition: 0.2s;
+            width: 100%; padding: 18px; margin-bottom: 14px; border-radius: 22px;
+            text-decoration: none; font-size: 16px; font-weight: 700; color: white;
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            opacity: 0; transform: translateY(25px); /* Hidden by default for cascade */
         }
-        .btn:active { transform: scale(0.97); }
+        .btn.show { opacity: 1; transform: translateY(0); }
+        .btn:active { transform: scale(0.94); }
 
-        .social-grid { display: flex; gap: 12px; width: 100%; margin: 35px 0 10px; }
-        .social-btn { 
-            flex: 1; border-radius: 20px; padding: 32px 5px 15px;
-            text-decoration: none; font-size: 13px; font-weight: 700; text-align: center;
-            position: relative; line-height: 1.2; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            display: none; /* Скрыто до проверки наличия данных */
+        /* Special Effects */
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.3); }
+            70% { box-shadow: 0 0 0 15px rgba(255, 255, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
         }
-        .icon-circle { 
-            width: 50px; height: 50px; border-radius: 50%; 
-            position: absolute; top: -25px; left: 50%; transform: translateX(-50%);
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-        .icon-circle svg { width: 24px; height: 24px; fill: white; }
+        .pulse { animation: pulse-ring 2s infinite; }
 
-        #btn-qr { background: rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.2); margin-top: 10px; }
-
-        .footer-cta {
-            margin-top: 30px; width: 100%; max-width: 280px;
-            background: rgba(255, 255, 255, 0.4);
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 12px; border-radius: 15px;
-            text-decoration: none; font-size: 14px; font-weight: 600;
-            color: #444; text-align: center;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            transition: 0.3s;
-        }
-        .footer-cta:active { background: rgba(255, 255, 255, 0.6); }
-
-        .qr-modal {
-            display: none; position: fixed; top: 0; left: 0;
-            width: 100%; height: 100%; background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(10px); justify-content: center; align-items: center; z-index: 100;
-        }
-        .qr-content { background: white; padding: 25px; border-radius: 30px; text-align: center; width: 280px; }
-        .qr-content img { width: 100%; border-radius: 15px; margin-bottom: 15px; }
+        /* Auto-branding */
+        .bg-whatsapp { background: #25D366 !important; }
+        .bg-instagram { background: linear-gradient(45deg, #f09433, #dc2743, #bc1888) !important; }
+        
+        .views-count { font-size: 11px; opacity: 0.3; margin-top: 25px; letter-spacing: 1px; }
     </style>
 </head>
 <body>
-    <div id="loader" class="loader"></div>
-
     <div id="app" class="container">
-        <div class="views-badge">
-            <div class="online-dot"></div>
-            <span>Посещаемость профиля: <span id="ui-views">...</span></span>
-        </div>
-
         <div class="main-card">
-            <div class="profile-pic"><img id="ui-photo" src="" alt=""></div>
+            <div class="profile-pic"><img id="ui-photo" src=""></div>
             <div id="ui-name" class="name"></div>
-            
-            <button id="btn-save" class="btn">Сохранить контакт</button>
-
-            <div class="social-grid">
-                <a id="ui-wa" href="#" class="social-btn">
-                    <div class="icon-circle" style="background-color: var(--wa-color);"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg></div>
-                    WhatsApp
-                </a>
-                <a id="ui-tg" href="#" class="social-btn">
-                    <div class="icon-circle" style="background-color: var(--tg-color);"><svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg></div>
-                    Telegram
-                </a>
-            </div>
-
-            <div id="extra-btns" style="width: 100%;"></div>
-
-            <button id="btn-qr" class="btn">Поделиться QR</button>
-        </div>
-
-        <a id="ui-create" href="#" class="footer-cta">
-            ✨ Создать свой профиль/визитку
-        </a>
-    </div>
-
-    <div id="qrModal" class="qr-modal">
-        <div class="qr-content">
-            <img id="qr-image" src="" alt="QR">
-            <button class="btn" style="background:#333; color:#fff; margin-bottom:0" onclick="document.getElementById('qrModal').style.display='none'">Закрыть</button>
+            <div id="btns-box"></div>
+            <div id="ui-views" class="views-count"></div>
         </div>
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbxGE5iQ8ilm0OFn3x-c93haDFwVzy7myxScPwo44vetXz775SenidUeca2M2oGJPAP6/exec";
-        const ADMIN_WA = "77064150958";
+        const API_URL = "https://script.google.com/macros/s/AKfycbw-43v8W_1uLTDdghlR6FSnF0a46UypK_Rq9mcisBISqZuHd1o49s8eAeYaHQQIkP0/exec";
 
         window.onload = async () => {
             const userId = new URLSearchParams(window.location.search).get('id');
             if (!userId) return;
 
-            document.getElementById('ui-create').href = `https://wa.me/${ADMIN_WA}?text=${encodeURIComponent("Привет! Хочу заказать себе такую же цифровую визитку.")}`;
-
             try {
-                const response = await fetch(`${API_URL}?id=${userId}`);
-                const data = await response.json();
+                const res = await fetch(`${API_URL}?id=${userId}`);
+                const data = await res.json();
                 
-                if(data.bg_image_url) document.body.style.backgroundImage = `url('${data.bg_image_url}')`;
-                else if(data.bg_color) document.body.style.backgroundColor = data.bg_color;
-
-                const btnColor = data.btn_color || '#333';
-                const textColor = data.text_color || '#fff';
-
                 document.getElementById('ui-photo').src = data.photo_url || '';
                 document.getElementById('ui-name').innerText = data.name || '';
-                document.getElementById('ui-name').style.color = textColor;
-                document.getElementById('ui-views').innerText = data.views || '0';
+                document.getElementById('ui-views').innerText = `ACTIVITY: ${data.views || 0}`;
 
-                // Настройка WhatsApp
-                const uiWa = document.getElementById('ui-wa');
-                let rawPhone = String(data.phone || "").replace(/\D/g, "");
-                if (rawPhone && rawPhone.length > 5) {
-                    uiWa.href = `https://wa.me/${rawPhone}`;
-                    uiWa.style.display = 'block';
-                    uiWa.style.backgroundColor = btnColor;
-                    uiWa.style.color = textColor;
+                const box = document.getElementById('btns-box');
+                const defColor = data.btn_color || 'rgba(255,255,255,0.1)';
+
+                function drawBtn(text, link) {
+                    if(!text || !link) return;
+                    let p = text.split('|').map(s => s.trim());
+                    let label = p[0], icon = p[1] || 'link', col = p[2] || defColor, isPulse = p[3] === 'pulse';
+
+                    const a = document.createElement('a');
+                    a.href = link; a.className = 'btn';
+                    if(isPulse) a.classList.add('pulse');
+
+                    const low = label.toLowerCase();
+                    if(low.includes('whatsapp')) { a.classList.add('bg-whatsapp'); icon='message-circle'; }
+                    else if(low.includes('instagram')) { a.classList.add('bg-instagram'); icon='instagram'; }
+                    
+                    if(!a.className.includes('bg-')) a.style.backgroundColor = col;
+                    a.innerHTML = `<i data-lucide="${icon}"></i> ${label}`;
+                    box.appendChild(a);
                 }
 
-                // Настройка Telegram
-                const uiTg = document.getElementById('ui-tg');
-                if (data.telegram && data.telegram.trim().length > 0) {
-                    uiTg.href = `https://t.me/${data.telegram.replace('@', '')}`;
-                    uiTg.style.display = 'block';
-                    uiTg.style.backgroundColor = btnColor;
-                    uiTg.style.color = textColor;
-                }
+                // WhatsApp и системные кнопки
+                if(data.phone) drawBtn("WhatsApp", `https://wa.me/${data.phone.toString().replace(/\D/g,"")}`);
+                
+                // Динамические кнопки из твоего обновленного скрипта
+                Object.keys(data).filter(k => k.startsWith('extra_btn_text')).forEach(k => {
+                    let id = k.split('_').pop();
+                    drawBtn(data[k], data[`extra_btn_link_${id}`]);
+                });
 
-                // Если есть только ОДНА кнопка из двух, убираем flex: 1, чтобы она заняла всю ширину
-                if (uiWa.style.display === 'block' && uiTg.style.display !== 'block') {
-                    uiWa.style.flex = "0 0 100%";
-                } else if (uiTg.style.display === 'block' && uiWa.style.display !== 'block') {
-                    uiTg.style.flex = "0 0 100%";
-                }
-
-                // Кнопки Save и QR
-                const mainBtns = [document.getElementById('btn-save'), document.getElementById('btn-qr')];
-                mainBtns.forEach(b => { b.style.backgroundColor = btnColor; b.style.color = textColor; });
-
-                const container = document.getElementById('extra-btns');
-                for(let i=1; i<=5; i++) {
-                    if(data[`extra_btn_text_${i}`]) {
-                        const a = document.createElement('a');
-                        a.className = 'btn';
-                        a.href = data[`extra_btn_link_${i}`];
-                        a.innerText = data[`extra_btn_text_${i}`];
-                        a.style.backgroundColor = btnColor;
-                        a.style.color = textColor;
-                        container.appendChild(a);
-                    }
-                }
-
-                document.getElementById('loader').style.display = 'none';
+                lucide.createIcons();
                 document.getElementById('app').style.display = 'flex';
 
-                document.getElementById('btn-qr').onclick = () => {
-                    document.getElementById('qr-image').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(window.location.href)}`;
-                    document.getElementById('qrModal').style.display = 'flex';
-                };
-
-                document.getElementById('btn-save').onclick = () => {
-                    let vcfPhone = rawPhone.startsWith("7") ? "+" + rawPhone : (rawPhone.startsWith("8") ? "+7" + rawPhone.substring(1) : rawPhone);
-                    const vcf = ['BEGIN:VCARD','VERSION:3.0',`FN:${data.name || 'Contact'}`,`TEL;TYPE=CELL:${vcfPhone}`,'END:VCARD'].join('\n');
-                    const blob = new Blob([vcf], {type:'text/vcard'});
-                    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download=`${data.name || 'contact'}.vcf`; a.click();
-                };
+                // Каскадный запуск анимации
+                document.querySelectorAll('.btn').forEach((b, i) => {
+                    setTimeout(() => b.classList.add('show'), i * 120);
+                });
 
             } catch (e) { console.error(e); }
         };
