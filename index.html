@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Digital Business Card</title>
     <style>
-        :root { --wa-color: #25D366; --tg-color: #0088cc; }
+        :root { --wa-color: #25D366; --tg-color: #0088cc; --ios-gray: #8E8E93; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body { 
             margin: 0; padding: 0; 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Arial, sans-serif; 
             background-color: #f0f0f2; 
             background-size: cover; 
             background-position: center; 
@@ -19,84 +19,117 @@
             min-height: 100vh;
         }
 
+        /* Индикатор просмотров в стиле iOS */
+        .views-badge {
+            position: absolute; top: 20px; right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            padding: 6px 12px; border-radius: 20px;
+            display: flex; align-items: center; gap: 6px;
+            font-size: 12px; font-weight: 600; color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            z-index: 10;
+        }
+
+        .online-dot {
+            width: 6px; height: 6px; background-color: #34C759;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.7); }
+            70% { box-shadow: 0 0 0 6px rgba(52, 199, 89, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(52, 199, 89, 0); }
+        }
+
         .loader {
-            border: 4px solid #f3f3f3; border-top: 4px solid #333;
-            border-radius: 50%; width: 40px; height: 40px;
-            animation: spin 1s linear infinite; margin-top: 40vh;
+            border: 3px solid rgba(0,0,0,0.1); border-top: 3px solid #333;
+            border-radius: 50%; width: 30px; height: 30px;
+            animation: spin 1s linear infinite; margin-top: 45vh;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         .container { 
-            width: 100%; max-width: 350px; 
-            padding: 20px 15px; display: none; flex-direction: column; align-items: center; 
+            width: 100%; max-width: 375px; 
+            padding: 40px 20px 20px; display: none; flex-direction: column; align-items: center; 
+            position: relative;
         }
 
         .main-card {
             width: 100%;
-            background: rgba(255, 255, 255, 0.15); 
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border-radius: 30px;
-            padding: 25px 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.12); 
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            border-radius: 35px;
+            padding: 35px 20px 25px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            border: 1px solid rgba(255,255,255,0.25);
             display: flex; flex-direction: column; align-items: center;
             text-align: center;
         }
 
         .profile-pic { 
-            width: 110px; height: 110px; border-radius: 50%; 
-            margin-bottom: 15px; overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2); border: 3px solid #fff;
+            width: 120px; height: 120px; border-radius: 50%; 
+            margin-bottom: 18px; overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2); border: 4px solid rgba(255,255,255,0.8);
         }
         .profile-pic img { width: 100%; height: 100%; object-fit: cover; }
 
         .name { 
-            font-size: 22px; font-weight: 800; margin-bottom: 25px; 
-            line-height: 1.2;
+            font-size: 24px; font-weight: 700; margin-bottom: 28px; 
+            letter-spacing: -0.5px;
         }
 
         .btn { 
-            width: 100%; padding: 15px; margin-bottom: 10px; 
-            border-radius: 15px; text-decoration: none; font-size: 15px; font-weight: 700;
+            width: 100%; padding: 16px; margin-bottom: 12px; 
+            border-radius: 18px; text-decoration: none; font-size: 16px; font-weight: 600;
             text-align: center; border: none; display: block; cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: 0.2s;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .btn:active { transform: scale(0.97); }
+        .btn:active { transform: scale(0.96); opacity: 0.9; }
 
-        .social-grid { display: flex; gap: 12px; width: 100%; margin: 35px 0 10px; }
+        .social-grid { display: flex; gap: 15px; width: 100%; margin: 30px 0 10px; }
         .social-btn { 
-            flex: 1; border-radius: 18px; padding: 30px 5px 12px;
-            text-decoration: none; font-size: 12px; font-weight: 700; text-align: center;
-            position: relative; line-height: 1.2; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            flex: 1; border-radius: 22px; padding: 32px 5px 15px;
+            text-decoration: none; font-size: 13px; font-weight: 600; text-align: center;
+            position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.08);
         }
         .icon-circle { 
-            width: 48px; height: 48px; border-radius: 50%; 
-            position: absolute; top: -24px; left: 50%; transform: translateX(-50%);
+            width: 52px; height: 52px; border-radius: 50%; 
+            position: absolute; top: -26px; left: 50%; transform: translateX(-50%);
             display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
         }
-        .icon-circle svg { width: 24px; height: 24px; fill: white; }
+        .icon-circle svg { width: 26px; height: 26px; fill: white; }
 
-        #btn-qr {
-            background: rgba(0,0,0,0.05); 
-            border: 1px solid rgba(255,255,255,0.3);
-            margin-top: 10px;
+        #btn-qr { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); margin-top: 10px; }
+
+        .footer-text {
+            margin-top: 30px; font-size: 13px; color: var(--ios-gray);
+            text-align: center; text-decoration: none; font-weight: 500;
+            transition: 0.2s;
         }
+        .footer-text:hover { color: #333; }
 
         .qr-modal {
             display: none; position: fixed; top: 0; left: 0;
-            width: 100%; height: 100%; background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(8px); justify-content: center; align-items: center; z-index: 100;
+            width: 100%; height: 100%; background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            justify-content: center; align-items: center; z-index: 100;
         }
-        .qr-content { background: white; padding: 25px; border-radius: 30px; text-align: center; width: 280px; }
-        .qr-content img { width: 100%; border-radius: 15px; margin-bottom: 15px; }
+        .qr-content { background: white; padding: 30px; border-radius: 40px; text-align: center; width: 300px; box-shadow: 0 25px 50px rgba(0,0,0,0.3); }
+        .qr-content img { width: 100%; border-radius: 20px; margin-bottom: 20px; }
     </style>
 </head>
 <body>
     <div id="loader" class="loader"></div>
 
     <div id="app" class="container">
+        <div class="views-badge">
+            <div class="online-dot"></div>
+            <span id="ui-views">...</span>
+        </div>
+
         <div class="main-card">
             <div class="profile-pic"><img id="ui-photo" src="" alt=""></div>
             <div id="ui-name" class="name"></div>
@@ -120,8 +153,10 @@
 
             <div id="extra-btns" style="width: 100%;"></div>
 
-            <button id="btn-qr" class="btn">Поделиться QR</button>
+            <button id="btn-qr" class="btn">Поделиться профилем</button>
         </div>
+        
+        <a id="ui-create-link" href="#" class="footer-text">Создайте свой профиль</a>
     </div>
 
     <div id="qrModal" class="qr-modal">
@@ -132,27 +167,32 @@
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbxSpvdvDwLswLzEihnxNAaE6lY_PpyjNETdSl1cgtC8Hs-orqbYDWsGUXAwGs_1qKu2/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbxEv9z8Hq7sjH494U0fPDsrLxgf48dVKHcpvJYZDGfSdX8XXds--cvstKSjuUJoLWU/exec";
+        const MY_WA_NUMBER = "77475354505"; // Твой номер
 
         window.onload = async () => {
             const userId = new URLSearchParams(window.location.search).get('id');
             if (!userId) return;
 
+            // Настройка ссылки в футере
+            document.getElementById('ui-create-link').href = `https://wa.me/${MY_WA_NUMBER}?text=${encodeURIComponent("Привет! Хочу создать такой же профиль визитку.")}`;
+
             try {
                 const response = await fetch(`${API_URL}?id=${userId}`);
                 const data = await response.json();
                 
-                // 1. Фон
                 if(data.bg_image_url) document.body.style.backgroundImage = `url('${data.bg_image_url}')`;
                 else if(data.bg_color) document.body.style.backgroundColor = data.bg_color;
 
-                // 2. Цвета
                 const btnColor = data.btn_color || '#333';
                 const textColor = data.text_color || '#fff';
 
                 document.getElementById('ui-photo').src = data.photo_url || '';
                 document.getElementById('ui-name').innerText = data.name || '';
                 document.getElementById('ui-name').style.color = textColor;
+                
+                // Отображение просмотров
+                document.getElementById('ui-views').innerText = data.views || '1';
                 
                 const btns = [
                     document.getElementById('btn-save'), 
@@ -165,21 +205,12 @@
                     b.style.color = textColor; 
                 });
 
-                // --- ЛОГИКА НОМЕРА ТЕЛЕФОНА ---
-                let rawPhone = String(data.phone || "").replace(/\D/g, ""); // Только цифры
-                let callPhone = rawPhone; // Для звонков и VCF
-                
-                // Если номер на 7, добавляем +
-                if (rawPhone.startsWith("7") && rawPhone.length === 11) {
-                    callPhone = "+" + rawPhone;
-                } else if (rawPhone.startsWith("8") && rawPhone.length === 11) {
-                    callPhone = "+7" + rawPhone.substring(1);
-                }
+                let rawPhone = String(data.phone || "").replace(/\D/g, "");
+                let callPhone = rawPhone.startsWith("7") ? "+" + rawPhone : (rawPhone.startsWith("8") ? "+7" + rawPhone.substring(1) : rawPhone);
 
                 document.getElementById('ui-wa').href = `https://wa.me/${rawPhone}`;
                 document.getElementById('ui-tg').href = `https://t.me/${data.telegram}`;
 
-                // Доп кнопки
                 const container = document.getElementById('extra-btns');
                 for(let i=1; i<=5; i++) {
                     if(data[`extra_btn_text_${i}`]) {
@@ -201,15 +232,8 @@
                     document.getElementById('qrModal').style.display = 'flex';
                 };
 
-                // --- КОРРЕКТНОЕ СОХРАНЕНИЕ ---
                 document.getElementById('btn-save').onclick = () => {
-                    const vcf = [
-                        'BEGIN:VCARD',
-                        'VERSION:3.0',
-                        `FN:${data.name || 'Contact'}`,
-                        `TEL;TYPE=CELL:${callPhone}`, // Используем номер с плюсом
-                        'END:VCARD'
-                    ].join('\n');
+                    const vcf = ['BEGIN:VCARD','VERSION:3.0',`FN:${data.name || 'Contact'}`,`TEL;TYPE=CELL:${callPhone}`,'END:VCARD'].join('\n');
                     const blob = new Blob([vcf], {type:'text/vcard'});
                     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download=`${data.name || 'contact'}.vcf`; a.click();
                 };
