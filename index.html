@@ -7,7 +7,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        :root { --glass: rgba(255, 255, 255, 0.1); --blur: blur(20px); }
+        :root { --glass: rgba(255, 255, 255, 0.12); --blur: blur(25px); }
         
         body { 
             margin: 0; padding: 0; font-family: -apple-system, system-ui, sans-serif;
@@ -15,7 +15,17 @@
             overflow-x: hidden;
         }
 
-        /* ПРЕЛОАДЕР */
+        /* iOS FIX: Фоновая картинка через псевдоэлемент */
+        body::before {
+            content: "";
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: background 0.5s ease;
+        }
+
         #preloader {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #0f0f0f; z-index: 9999; display: flex; flex-direction: column;
@@ -26,22 +36,20 @@
         #progress-bar { width: 0%; height: 100%; background: linear-gradient(90deg, #34C759, #007AFF); transition: width 0.4s ease; }
         #quote-area { min-height: 60px; font-style: italic; opacity: 0.9; font-size: 0.95rem; line-height: 1.4; margin-bottom: 20px; }
         
-        /* СКЕЛЕТОНЫ (Заглушки) */
         .skel-card { height: 55px; background: var(--glass); border-radius: 22px; margin-bottom: 14px; position: relative; overflow: hidden; }
         .skel-card::after { content: ""; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent); animation: shimmer 1.5s infinite; }
         @keyframes shimmer { 100% { left: 100%; } }
 
-        /* ОСНОВНОЙ КОНТЕНТ */
         .container { 
             width: 100%; max-width: 400px; padding: 120px 20px 40px; 
             display: none; flex-direction: column; align-items: center; position: relative; 
         }
 
         .views-badge {
-            position: absolute; top: 40px; background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            position: absolute; top: 40px; background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
             padding: 8px 16px; border-radius: 20px; display: flex; align-items: center; gap: 10px;
-            font-size: 11px; font-weight: 700; color: inherit; border: 1px solid rgba(255,255,255,0.15);
+            font-size: 11px; font-weight: 700; color: white; border: 1px solid rgba(255,255,255,0.15);
             z-index: 100; box-shadow: 0 10px 20px rgba(0,0,0,0.2); letter-spacing: 0.5px; text-transform: uppercase;
         }
 
@@ -49,14 +57,15 @@
         @keyframes dot-pulse { 0% { transform: scale(1); opacity: 1; } 70% { transform: scale(1.3); opacity: 0.5; } 100% { transform: scale(1); opacity: 1; } }
 
         .main-card {
-            width: 100%; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-            border-radius: 40px; padding: 40px 20px; border: 1px solid rgba(255,255,255,0.1);
-            text-align: center; box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+            width: 100%; background: rgba(0, 0, 0, 0.4); 
+            backdrop-filter: blur(30px) brightness(0.9); -webkit-backdrop-filter: blur(30px) brightness(0.9);
+            border-radius: 40px; padding: 40px 20px; border: 1px solid rgba(255,255,255,0.12);
+            text-align: center; box-shadow: 0 40px 80px rgba(0,0,0,0.6);
         }
 
-        .profile-pic { width: 120px; height: 120px; border-radius: 50%; margin: -100px auto 20px; border: 4px solid rgba(255,255,255,0.2); overflow: hidden; background: #fff; }
+        .profile-pic { width: 120px; height: 120px; border-radius: 50%; margin: -100px auto 20px; border: 4px solid rgba(255,255,255,0.2); overflow: hidden; background: #fff; box-shadow: 0 15px 30px rgba(0,0,0,0.3); }
         .profile-pic img { width: 100%; height: 100%; object-fit: cover; }
-        .name { font-size: 22px; font-weight: 800; margin-bottom: 30px; letter-spacing: -0.5px; line-height: 1.2; }
+        .name { font-size: 22px; font-weight: 800; margin-bottom: 30px; letter-spacing: -0.5px; line-height: 1.2; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
 
         .btn { 
             width: 100%; padding: 18px; margin-bottom: 14px; border-radius: 22px;
@@ -64,20 +73,22 @@
             display: flex; align-items: center; justify-content: center; gap: 12px;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             opacity: 0; transform: translateY(20px);
+            border: 1px solid rgba(255,255,255,0.1);
         }
         .btn.show { opacity: 1; transform: translateY(0); }
         .btn:active { transform: scale(0.96); }
 
         .pulse { animation: pulse-ring 2s infinite; }
-        @keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.2); } 70% { box-shadow: 0 0 0 12px rgba(255, 255, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); } }
+        @keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.3); } 70% { box-shadow: 0 0 0 12px rgba(255, 255, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); } }
 
-        .bg-whatsapp { background: #25D366 !important; color: white !important; }
-        .bg-instagram { background: linear-gradient(45deg, #f09433, #dc2743, #bc1888) !important; color: white !important; }
+        .bg-whatsapp { background: #25D366 !important; color: white !important; border: none !important; }
+        .bg-instagram { background: linear-gradient(45deg, #f09433, #dc2743, #bc1888) !important; color: white !important; border: none !important; }
 
         .footer-cta {
-            margin-top: 25px; width: 100%; max-width: 280px; background: rgba(255, 255, 255, 0.08);
+            margin-top: 25px; width: 100%; max-width: 280px; background: rgba(0, 0, 0, 0.3);
             padding: 12px; border-radius: 18px; text-decoration: none; font-size: 13px; font-weight: 600;
-            color: rgba(255,255,255,0.6); display: flex; align-items: center; justify-content: center; gap: 8px;
+            color: rgba(255,255,255,0.7); display: flex; align-items: center; justify-content: center; gap: 8px;
+            backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
         }
     </style>
 </head>
@@ -96,7 +107,7 @@
     <div id="app" class="container">
         <div class="views-badge">
             <div class="online-dot"></div>
-            <span>Посещений профиля: <span id="ui-views">0</span></span>
+            <span>Посещений: <span id="ui-views">0</span></span>
         </div>
 
         <div class="main-card">
@@ -107,7 +118,7 @@
 
         <a id="ui-create" href="#" class="footer-cta">
             <i data-lucide="sparkles" style="width:16px;"></i>
-            <span>Создать такой же профиль/визитку</span>
+            <span>Создать такую же визитку</span>
         </a>
     </div>
 
@@ -122,7 +133,6 @@
             "Сложнее всего начать действовать, остальное зависит только от упорства."
         ];
 
-        // 1. Управление загрузкой
         function initLoader() {
             document.getElementById('quote-area').innerText = `"${quotes[Math.floor(Math.random() * quotes.length)]}"`;
             let progress = 0;
@@ -136,12 +146,22 @@
             return interval;
         }
 
-        // 2. Функция отрисовки (твоя оригинальная логика)
         function renderUI(data, userId) {
             if (!data) return;
 
-            if (data.bg_color) document.body.style.backgroundColor = data.bg_color;
-            if (data.text_color) document.getElementById('app').style.color = data.text_color;
+            // Используем bg_image_url из твоей таблицы
+            const bodyStyle = document.body.style;
+            if (data.bg_image_url && data.bg_image_url.trim().startsWith('http')) {
+                document.styleSheets[0].addRule('body::before', `background-image: url('${data.bg_image_url.trim()}')`);
+            } else if (data.bg_color) {
+                bodyStyle.backgroundColor = data.bg_color;
+                document.styleSheets[0].addRule('body::before', `background-image: none`);
+            }
+
+            if (data.text_color) {
+                document.getElementById('app').style.color = data.text_color;
+                document.querySelectorAll('.views-badge, .footer-cta').forEach(el => el.style.color = data.text_color);
+            }
             
             document.getElementById('ui-photo').src = data.photo_url || '';
             document.getElementById('ui-name').innerText = data.name || '';
@@ -183,7 +203,6 @@
 
             lucide.createIcons();
             
-            // Показываем контент
             document.getElementById('app').style.display = 'flex';
             setTimeout(() => {
                 document.getElementById('preloader').style.opacity = '0';
@@ -194,7 +213,6 @@
             }, 200);
         }
 
-        // 3. Запуск при загрузке страницы
         window.onload = async () => {
             const userId = new URLSearchParams(window.location.search).get('id');
             if (!userId) {
@@ -203,29 +221,20 @@
             }
 
             const loaderTimer = initLoader();
-
-            // Сначала проверяем кэш (для мгновенного открытия)
             const cached = localStorage.getItem('vcard_cache_' + userId);
-            if (cached) {
-                renderUI(JSON.parse(cached), userId);
-            }
+            if (cached) renderUI(JSON.parse(cached), userId);
 
             try {
-                // Запрашиваем свежие данные у Google
                 const res = await fetch(`${API_URL}?id=${userId}`);
                 const data = await res.json();
-                
-                // Сохраняем свежак в кэш
                 localStorage.setItem('vcard_cache_' + userId, JSON.stringify(data));
                 
-                // Финальная отрисовка
                 document.getElementById('progress-bar').style.width = '100%';
                 clearInterval(loaderTimer);
                 renderUI(data, userId);
-
             } catch (e) { 
                 console.error(e);
-                if (!cached) document.getElementById('quote-area').innerText = "Ошибка подключения к серверу";
+                if (!cached) document.getElementById('quote-area').innerText = "Ошибка сервера";
             }
         };
     </script>
