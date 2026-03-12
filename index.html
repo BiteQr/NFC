@@ -7,58 +7,55 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root { --glass: rgba(255, 255, 255, 0.1); --blur: blur(20px); }
+        
         body { 
             margin: 0; padding: 0; font-family: -apple-system, system-ui, sans-serif;
-            background: #0f0f0f; /* Цвет по умолчанию, заменится из таблицы */
-            display: flex; justify-content: center; min-height: 100vh; color: white;
+            background: #0f0f0f; display: flex; justify-content: center; min-height: 100vh; color: white;
             overflow-x: hidden;
         }
 
-        /* Увеличили padding-top до 120px, чтобы не было наслоения на лого */
+        /* ПРЕЛОАДЕР */
+        #preloader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #0f0f0f; z-index: 9999; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; padding: 20px; transition: opacity 0.5s ease;
+        }
+        .loader-content { width: 100%; max-width: 300px; text-align: center; }
+        .progress-container { width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 10px; margin: 25px 0; overflow: hidden; }
+        #progress-bar { width: 0%; height: 100%; background: linear-gradient(90deg, #34C759, #007AFF); transition: width 0.4s ease; }
+        #quote-area { min-height: 60px; font-style: italic; opacity: 0.9; font-size: 0.95rem; line-height: 1.4; margin-bottom: 20px; }
+        
+        /* СКЕЛЕТОНЫ (Заглушки) */
+        .skel-card { height: 55px; background: var(--glass); border-radius: 22px; margin-bottom: 14px; position: relative; overflow: hidden; }
+        .skel-card::after { content: ""; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent); animation: shimmer 1.5s infinite; }
+        @keyframes shimmer { 100% { left: 100%; } }
+
+        /* ОСНОВНОЙ КОНТЕНТ */
         .container { 
             width: 100%; max-width: 400px; padding: 120px 20px 40px; 
             display: none; flex-direction: column; align-items: center; position: relative; 
         }
 
-        /* Подняли бейдж выше (top: 40px) */
         .views-badge {
-            position: absolute; top: 40px; 
-            background: rgba(255, 255, 255, 0.1);
+            position: absolute; top: 40px; background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            padding: 8px 16px; border-radius: 20px;
-            display: flex; align-items: center; gap: 10px;
-            font-size: 11px; font-weight: 700; color: inherit;
-            border: 1px solid rgba(255,255,255,0.15);
-            z-index: 100; box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-            letter-spacing: 0.5px; text-transform: uppercase;
+            padding: 8px 16px; border-radius: 20px; display: flex; align-items: center; gap: 10px;
+            font-size: 11px; font-weight: 700; color: inherit; border: 1px solid rgba(255,255,255,0.15);
+            z-index: 100; box-shadow: 0 10px 20px rgba(0,0,0,0.2); letter-spacing: 0.5px; text-transform: uppercase;
         }
 
-        .online-dot {
-            width: 8px; height: 8px; background-color: #34C759;
-            border-radius: 50%; box-shadow: 0 0 10px #34C759;
-            animation: dot-pulse 2s infinite;
-        }
-
-        @keyframes dot-pulse {
-            0% { transform: scale(1); opacity: 1; }
-            70% { transform: scale(1.3); opacity: 0.5; }
-            100% { transform: scale(1); opacity: 1; }
-        }
+        .online-dot { width: 8px; height: 8px; background-color: #34C759; border-radius: 50%; box-shadow: 0 0 10px #34C759; animation: dot-pulse 2s infinite; }
+        @keyframes dot-pulse { 0% { transform: scale(1); opacity: 1; } 70% { transform: scale(1.3); opacity: 0.5; } 100% { transform: scale(1); opacity: 1; } }
 
         .main-card {
-            width: 100%;
-            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            width: 100%; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
             border-radius: 40px; padding: 40px 20px; border: 1px solid rgba(255,255,255,0.1);
             text-align: center; box-shadow: 0 40px 80px rgba(0,0,0,0.5);
         }
 
-        .profile-pic { 
-            width: 120px; height: 120px; border-radius: 50%; margin: -100px auto 20px;
-            border: 4px solid rgba(255,255,255,0.2); overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-            background: #fff;
-        }
+        .profile-pic { width: 120px; height: 120px; border-radius: 50%; margin: -100px auto 20px; border: 4px solid rgba(255,255,255,0.2); overflow: hidden; background: #fff; }
         .profile-pic img { width: 100%; height: 100%; object-fit: cover; }
-
         .name { font-size: 22px; font-weight: 800; margin-bottom: 30px; letter-spacing: -0.5px; line-height: 1.2; }
 
         .btn { 
@@ -72,24 +69,30 @@
         .btn:active { transform: scale(0.96); }
 
         .pulse { animation: pulse-ring 2s infinite; }
-        @keyframes pulse-ring {
-            0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.2); }
-            70% { box-shadow: 0 0 0 12px rgba(255, 255, 255, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
-        }
+        @keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.2); } 70% { box-shadow: 0 0 0 12px rgba(255, 255, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); } }
 
         .bg-whatsapp { background: #25D366 !important; color: white !important; }
         .bg-instagram { background: linear-gradient(45deg, #f09433, #dc2743, #bc1888) !important; color: white !important; }
 
         .footer-cta {
-            margin-top: 25px; width: 100%; max-width: 280px;
-            background: rgba(255, 255, 255, 0.08); padding: 12px; border-radius: 18px;
-            text-decoration: none; font-size: 13px; font-weight: 600;
+            margin-top: 25px; width: 100%; max-width: 280px; background: rgba(255, 255, 255, 0.08);
+            padding: 12px; border-radius: 18px; text-decoration: none; font-size: 13px; font-weight: 600;
             color: rgba(255,255,255,0.6); display: flex; align-items: center; justify-content: center; gap: 8px;
         }
     </style>
 </head>
 <body>
+
+    <div id="preloader">
+        <div class="loader-content">
+            <div id="quote-area">"Загружаем успех..."</div>
+            <div class="progress-container"><div id="progress-bar"></div></div>
+            <div class="skel-card"></div>
+            <div class="skel-card"></div>
+            <div style="font-size: 0.7rem; opacity: 0.3; margin-top: 20px; letter-spacing: 2px;">SUCCESS CARD PREMIUM</div>
+        </div>
+    </div>
+
     <div id="app" class="container">
         <div class="views-badge">
             <div class="online-dot"></div>
@@ -111,69 +114,119 @@
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbw-43v8W_1uLTDdghlR6FSnF0a46UypK_Rq9mcisBISqZuHd1o49s8eAeYaHQQIkP0/exec";
         const ADMIN_WA = "77064150958";
+        const quotes = [
+            "Успех — это сумма малых усилий, повторяемых изо дня в день.",
+            "Лучший способ предсказать будущее — создать его.",
+            "Ваше время ограничено, не тратьте его, живя чужой жизнью.",
+            "Делайте сегодня то, что другие не хотят — завтра будете жить так, как другие не могут.",
+            "Сложнее всего начать действовать, остальное зависит только от упорства."
+        ];
 
-        window.onload = async () => {
-            const userId = new URLSearchParams(window.location.search).get('id');
-            if (!userId) return;
-
-            document.getElementById('ui-create').href = `https://wa.me/${ADMIN_WA}?text=${encodeURIComponent("Здравствуйте! Хочу заказать визитку как у " + userId)}`;
-
-            try {
-                const res = await fetch(`${API_URL}?id=${userId}`);
-                const data = await res.json();
-                
-                // ПРИМЕНЕНИЕ ЦВЕТОВ ИЗ ТАБЛИЦЫ
-                if (data.bg_color) document.body.style.backgroundColor = data.bg_color;
-                if (data.text_color) document.getElementById('app').style.color = data.text_color;
-                
-                document.getElementById('ui-photo').src = data.photo_url || '';
-                document.getElementById('ui-name').innerText = data.name || '';
-                document.getElementById('ui-views').innerText = data.views || 0;
-
-                const box = document.getElementById('btns-box');
-                // Цвет кнопок по умолчанию из колонки btn_color
-                const globalBtnColor = data.btn_color || 'rgba(255,255,255,0.15)';
-
-                function drawBtn(text, link) {
-                    if(!text || !link) return;
-                    let p = text.split('|').map(s => s.trim());
-                    let label = p[0], icon = p[1] || 'link', col = p[2] || globalBtnColor, isPulse = p[3] === 'pulse';
-
-                    const a = document.createElement('a');
-                    a.href = link; a.className = 'btn';
-                    if(isPulse) a.classList.add('pulse');
-
-                    const low = label.toLowerCase();
-                    if(low.includes('whatsapp')) { a.classList.add('bg-whatsapp'); icon='message-circle'; }
-                    else if(low.includes('instagram')) { a.classList.add('bg-instagram'); icon='instagram'; }
-                    
-                    if(!a.className.includes('bg-')) {
-                        a.style.backgroundColor = col;
-                        // Если фон кнопки светлый (gold/white), делаем текст темным
-                        if(col === 'gold' || col === 'white' || col === '#ffffff') a.style.color = '#000';
-                    }
-                    
-                    a.innerHTML = `<i data-lucide="${icon}"></i> ${label}`;
-                    box.appendChild(a);
+        // 1. Управление загрузкой
+        function initLoader() {
+            document.getElementById('quote-area').innerText = `"${quotes[Math.floor(Math.random() * quotes.length)]}"`;
+            let progress = 0;
+            const bar = document.getElementById('progress-bar');
+            const interval = setInterval(() => {
+                if (progress < 85) {
+                    progress += Math.random() * 10;
+                    bar.style.width = progress + '%';
                 }
+            }, 400);
+            return interval;
+        }
 
-                // Системные кнопки
-                if(data.phone) drawBtn("WhatsApp", `https://wa.me/${data.phone.toString().replace(/\D/g,"")}`);
+        // 2. Функция отрисовки (твоя оригинальная логика)
+        function renderUI(data, userId) {
+            if (!data) return;
+
+            if (data.bg_color) document.body.style.backgroundColor = data.bg_color;
+            if (data.text_color) document.getElementById('app').style.color = data.text_color;
+            
+            document.getElementById('ui-photo').src = data.photo_url || '';
+            document.getElementById('ui-name').innerText = data.name || '';
+            document.getElementById('ui-views').innerText = data.views || 0;
+            document.getElementById('ui-create').href = `https://wa.me/${ADMIN_WA}?text=Здравствуйте! Хочу заказать визитку как у ${userId}`;
+
+            const box = document.getElementById('btns-box');
+            box.innerHTML = ''; 
+            const globalBtnColor = data.btn_color || 'rgba(255,255,255,0.15)';
+
+            function drawBtn(text, link) {
+                if(!text || !link) return;
+                let p = text.split('|').map(s => s.trim());
+                let label = p[0], icon = p[1] || 'link', col = p[2] || globalBtnColor, isPulse = p[3] === 'pulse';
+
+                const a = document.createElement('a');
+                a.href = link; a.className = 'btn';
+                if(isPulse) a.classList.add('pulse');
+
+                const low = label.toLowerCase();
+                if(low.includes('whatsapp')) { a.classList.add('bg-whatsapp'); icon='message-circle'; }
+                else if(low.includes('instagram')) { a.classList.add('bg-instagram'); icon='instagram'; }
                 
-                // Динамические кнопки (extra_btn_text_1, 2, 3...)
-                Object.keys(data).filter(k => k.startsWith('extra_btn_text')).sort().forEach(k => {
-                    let id = k.split('_').pop();
-                    drawBtn(data[k], data[`extra_btn_link_${id}`]);
-                });
+                if(!a.className.includes('bg-')) {
+                    a.style.backgroundColor = col;
+                    if(['gold','white','#ffffff','#fff'].includes(col.toLowerCase())) a.style.color = '#000';
+                }
+                
+                a.innerHTML = `<i data-lucide="${icon}"></i> ${label}`;
+                box.appendChild(a);
+            }
 
-                lucide.createIcons();
-                document.getElementById('app').style.display = 'flex';
+            if(data.phone) drawBtn("WhatsApp", `https://wa.me/${data.phone.toString().replace(/\D/g,"")}`);
+            
+            Object.keys(data).filter(k => k.startsWith('extra_btn_text')).sort().forEach(k => {
+                let id = k.split('_').pop();
+                drawBtn(data[k], data[`extra_btn_link_${id}`]);
+            });
 
+            lucide.createIcons();
+            
+            // Показываем контент
+            document.getElementById('app').style.display = 'flex';
+            setTimeout(() => {
+                document.getElementById('preloader').style.opacity = '0';
+                setTimeout(() => document.getElementById('preloader').style.display = 'none', 500);
                 document.querySelectorAll('.btn').forEach((b, i) => {
                     setTimeout(() => b.classList.add('show'), i * 100);
                 });
+            }, 200);
+        }
 
-            } catch (e) { console.error(e); }
+        // 3. Запуск при загрузке страницы
+        window.onload = async () => {
+            const userId = new URLSearchParams(window.location.search).get('id');
+            if (!userId) {
+                document.getElementById('quote-area').innerText = "Ошибка: ID пользователя не найден";
+                return;
+            }
+
+            const loaderTimer = initLoader();
+
+            // Сначала проверяем кэш (для мгновенного открытия)
+            const cached = localStorage.getItem('vcard_cache_' + userId);
+            if (cached) {
+                renderUI(JSON.parse(cached), userId);
+            }
+
+            try {
+                // Запрашиваем свежие данные у Google
+                const res = await fetch(`${API_URL}?id=${userId}`);
+                const data = await res.json();
+                
+                // Сохраняем свежак в кэш
+                localStorage.setItem('vcard_cache_' + userId, JSON.stringify(data));
+                
+                // Финальная отрисовка
+                document.getElementById('progress-bar').style.width = '100%';
+                clearInterval(loaderTimer);
+                renderUI(data, userId);
+
+            } catch (e) { 
+                console.error(e);
+                if (!cached) document.getElementById('quote-area').innerText = "Ошибка подключения к серверу";
+            }
         };
     </script>
 </body>
